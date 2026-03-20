@@ -1,0 +1,69 @@
+import sqlite3
+
+# Conexão com banco de dados
+conn = sqlite3.connect('clientes.db')
+cursor = conn.cursor()
+
+# Criar tabela
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS clientes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    email TEXT NOT NULL,
+    telefone TEXT NOT NULL
+)
+''')
+conn.commit()
+
+def cadastrar_cliente():
+    nome = input("Digite o nome: ")
+    email = input("Digite o email: ")
+    telefone = input("Digite o telefone: ")
+
+    cursor.execute("INSERT INTO clientes (nome, email, telefone) VALUES (?, ?, ?)",
+                   (nome, email, telefone))
+    conn.commit()
+    print("✅ Cliente cadastrado com sucesso!")
+
+def listar_clientes():
+    cursor.execute("SELECT * FROM clientes")
+    clientes = cursor.fetchall()
+
+    if not clientes:
+        print("⚠️ Nenhum cliente cadastrado.")
+    else:
+        print("\n📋 Lista de Clientes:")
+        for cliente in clientes:
+            print(f"ID: {cliente[0]} | Nome: {cliente[1]} | Email: {cliente[2]} | Telefone: {cliente[3]}")
+
+def excluir_cliente():
+    id_cliente = input("Digite o ID do cliente para excluir: ")
+
+    cursor.execute("DELETE FROM clientes WHERE id = ?", (id_cliente,))
+    conn.commit()
+    print("🗑️ Cliente excluído com sucesso!")
+
+def menu():
+    while True:
+        print("\n===== MENU =====")
+        print("1 - Cadastrar cliente")
+        print("2 - Listar clientes")
+        print("3 - Excluir cliente")
+        print("4 - Sair")
+
+        opcao = input("Escolha uma opção: ")
+
+        if opcao == "1":
+            cadastrar_cliente()
+        elif opcao == "2":
+            listar_clientes()
+        elif opcao == "3":
+            excluir_cliente()
+        elif opcao == "4":
+            print("Encerrando sistema...")
+            break
+        else:
+            print("❌ Opção inválida!")
+
+menu()
+conn.close()
